@@ -1,0 +1,193 @@
+/* ================= PAGE FEED ================= */
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #f6f7f8;
+}
+
+/* ================= POST CARD ================= */
+
+.postCard {
+  background: white;
+  padding: 22px 28px;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.15s ease;
+}
+
+.postCard:hover {
+  background: #f9fafb;
+}
+
+/* ================= META ROW ================= */
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.communityAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+.communityName {
+  font-weight: 600;
+  color: #111827;
+}
+
+.dot {
+  margin: 0 4px;
+  color: #9ca3af;
+}
+
+/* ================= TITLE ================= */
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 8px;
+}
+
+.title:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ================= TEXT ================= */
+
+.preview {
+  margin-top: 6px;
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* ================= MEDIA ================= */
+
+.singleMedia {
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 12px;
+  max-height: 480px;
+  object-fit: cover;
+}
+
+/* ================= CAROUSEL ================= */
+
+.carousel {
+  position: relative;
+  margin-top: 14px;
+}
+
+.mediaWrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.media {
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ================= NAV BUTTONS ================= */
+
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  font-size: 20px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.navBtn:hover {
+  background: #f3f4f6;
+}
+
+.left {
+  left: 12px;
+}
+
+.right {
+  right: 12px;
+}
+
+/* ================= INDICATOR ================= */
+
+.indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  background: rgba(17, 24, 39, 0.75);
+  color: white;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 20px;
+}
+
+/* ================= ACTION BAR ================= */
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+/* ================= VOTE BOX ================= */
+
+.voteBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.voteBtn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: color 0.15s ease;
+}
+
+.voteBtn:hover {
+  color: #111827;
+}
+
+/* ================= OTHER ACTIONS ================= */
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f3f4f6;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.actionItem:hover {
+  background: #e5e7eb;
+  color: #111827;
+}

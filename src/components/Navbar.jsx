@@ -1,0 +1,172 @@
+import styles from "./navbar.module.css";
+import logo from "../assets/logo.png";
+import AddPostIcon from "./icons/addpost";
+import AddCommunityIcon from "./icons/addcomm";
+import NotificationIcon from "./icons/notificicon";
+import { useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/UserContext";
+
+function Navbar({ search, updateSearch, setCommWindow }) {
+  const navigate = useNavigate();
+  const { user, updateUser } = useContext(AuthContext);
+
+  const [isDark, setIsDark] = useState(false);
+
+  const logout = async () => {
+    await fetch("http://localhost:3000/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    updateUser(null);
+    navigate("/");
+  };
+
+  const toggleMode = () => {
+    const newMode = !isDark;
+    setIsDark(newMode);
+
+    if (newMode) {
+      console.log("dark");
+    } else {
+      console.log("light");
+    }
+  };
+
+  return (
+    <header className={styles.header}>
+      {/* LEFT */}
+      <div
+        className={styles.left}
+        onClick={() => navigate("/")}
+      >
+        <img src={logo} alt="HiveMind" className={styles.logo} />
+        <span className={styles.brand}>hivemind</span>
+      </div>
+
+      {/* SEARCH */}
+      <div className={styles.searchWrapper}>
+        <input
+          type="text"
+          placeholder="Find anything"
+          className={styles.search}
+          onChange={(event)=>{
+            updateSearch(event.target.value);
+          }}
+        />
+      </div>
+
+      {/* RIGHT */}
+      <div className={styles.right}>
+
+        {!user && (
+          <button
+            className={styles.loginBtn}
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+        )}
+
+        {user && (
+          <>
+            {/* Create Post */}
+            {/* <div className={styles.iconWrapper}>
+              <span onClick={() => navigate("/createpost")}>
+                <AddPostIcon />
+              </span>
+              <div className={styles.tooltip}>Create Post</div>
+            </div> */}
+
+            {/* Add Community */}
+            <div className={styles.iconWrapper}>
+              <span onClick={() => setCommWindow((p) => !p)}>
+                <AddCommunityIcon />
+              </span>
+              <div className={styles.tooltip}>Add Group</div>
+            </div>
+
+            {/* Notifications */}
+            <div className={styles.iconWrapper}>
+              <span onClick={() => navigate("/notification")}>
+                <NotificationIcon />
+              </span>
+              <div className={styles.tooltip}>Notifications</div>
+            </div>
+
+            {/* Profile */}
+            <div className={styles.profileWrapper}>
+              <img
+                src={user.avatar || "https://picsum.photos/40"}
+                className={styles.avatar}
+                alt="avatar"
+              />
+
+              <div className={styles.dropdown}>
+                <div className={styles.userHeader}>
+                  <img
+                    src={user.avatar || "https://picsum.photos/40"}
+                    className={styles.dropdownAvatar}
+                    alt="avatar"
+                  />
+                  <div>
+                    <div className={styles.username}>
+                      u/{user.username}
+                    </div>
+                    <div className={styles.subText}>
+                      View Profile
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className={styles.menuItem}
+                  onClick={() => navigate("/profile")}
+                >
+                  View Profile
+                </div>
+
+                <div className={styles.menuItem}>
+                  Edit Avatar
+                </div>
+
+                <div className={styles.menuItem}>
+                  Drafts
+                </div>
+
+                <div className={styles.menuItem}>
+                  Achievements
+                </div>
+
+                {/* Toggle */}
+                <div className={styles.menuItem}>
+                  <div className={styles.toggleRow}>
+                    <span>Dark Mode</span>
+
+                    <label className={styles.switch}>
+                      <input
+                        type="checkbox"
+                        checked={isDark}
+                        onChange={toggleMode}
+                      />
+                      <span className={styles.slider}></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  className={`${styles.menuItem} ${styles.logout}`}
+                  onClick={logout}
+                >
+                  Log Out
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </header>
+  );
+}
+
+export default Navbar;
