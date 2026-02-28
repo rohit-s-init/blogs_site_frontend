@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import styles from "./createPost.module.css";
+import styles from "./createpost.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 function CreatePost() {
