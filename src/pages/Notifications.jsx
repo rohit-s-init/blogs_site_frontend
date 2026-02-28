@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./notifications.module.css";
+import styles from "./Notifications.module.css";
 
 function Notification() {
   const [notifications, setNotifications] = useState([
