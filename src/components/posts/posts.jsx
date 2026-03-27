@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import styles from "./posts.module.css";
 import { useNavigate } from "react-router-dom";
+import { reactToPost } from "../../services/postservices";
+import Loader from "../loader";
+import { SaveButton } from "../../icons/SaveButton";
+import { useAuth } from "../../context/UserContext";
 
 /* ================= MEDIA CAROUSEL ================= */
 
@@ -62,84 +66,62 @@ function MediaCarousel({ media }) {
     );
 }
 
-/* ================= POST COMPONENT ================= */
-function SaveButton({ saved, onClick }) {
+function renderContent(rawContent) {
+
+
+    if (!rawContent) return null;
+
+    const imageMatches = [...rawContent.matchAll(/!\[image\]\((.*?)\)/g)];
+    const videoMatches = [...rawContent.matchAll(/!\[video\]\((.*?)\)/g)];
+
+    console.log("image matches video nathces");
+    console.log(imageMatches);
+    console.log(videoMatches);
+
+    const cleanText = rawContent
+        .replace(/!\[image\]\((.*?)\)/g, "")
+        .replace(/!\[video\]\((.*?)\)/g, "")
+        .trim();
+
+    const media = [
+        ...imageMatches.map(m => ({ type: "image", url: m[1] })),
+        ...videoMatches.map(m => ({ type: "video", url: m[1] }))
+    ];
+
     return (
-        <div className={styles.actionItem} onClick={onClick}>
-            {saved ? (
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    width="18"
-                    height="18"
-                >
-                    <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
-                </svg>
-            ) : (
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    width="18"
-                    height="18"
-                >
-                    <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
-                </svg>
+        <>
+            {cleanText && (
+                <p className={styles.preview}>{cleanText}</p>
             )}
-        </div>
+
+            {media.length === 1 && (
+                media[0].type === "image" ? (
+                    <img
+                        src={media[0].url}
+                        alt="post media"
+                        className={styles.singleMedia}
+                    />
+                ) : (
+                    <video controls className={styles.singleMedia}>
+                        <source src={media[0].url} type="video/mp4" />
+                    </video>
+                )
+            )}
+
+            {media.length > 1 && (
+                <MediaCarousel media={media} />
+            )}
+        </>
     );
 }
 
-function Posts({ posts, type = "home" }) {
+function Posts({ updatePosts, posts, type = "home" }) {
 
 
-    function renderContent(rawContent) {
 
-
-        if (!rawContent) return null;
-
-        const imageMatches = [...rawContent.matchAll(/!\[image\]\((.*?)\)/g)];
-        const videoMatches = [...rawContent.matchAll(/!\[video\]\((.*?)\)/g)];
-
-        const cleanText = rawContent
-            .replace(/!\[image\]\((.*?)\)/g, "")
-            .replace(/!\[video\]\((.*?)\)/g, "")
-            .trim();
-
-        const media = [
-            ...imageMatches.map(m => ({ type: "image", url: m[1] })),
-            ...videoMatches.map(m => ({ type: "video", url: m[1] }))
-        ];
-
-        return (
-            <>
-                {cleanText && (
-                    <p className={styles.preview}>{cleanText}</p>
-                )}
-
-                {media.length === 1 && (
-                    media[0].type === "image" ? (
-                        <img
-                            src={media[0].url}
-                            alt="post media"
-                            className={styles.singleMedia}
-                        />
-                    ) : (
-                        <video controls className={styles.singleMedia}>
-                            <source src={media[0].url} type="video/mp4" />
-                        </video>
-                    )
-                )}
-
-                {media.length > 1 && (
-                    <MediaCarousel media={media} />
-                )}
-            </>
-        );
-    }
 
     const navigate = useNavigate();
+    const { theme } = useAuth();
     const [savedPost, updateSavedPost] = useState(-1);
     useEffect(() => {
         const timeour = setTimeout(() => {
@@ -151,9 +133,12 @@ function Posts({ posts, type = "home" }) {
     }, [savedPost]);
 
 
+    if (posts.length == 0) return (<Loader></Loader>);
+
+
     return (
         <div className={styles.feed}>
-            {posts.map((post) => {
+            {posts.map((post, ind) => {
                 // const [saved, handleSavedClick] = useState(false);
                 // useEffect(() => {
                 //     setTimeout(() => {
@@ -163,7 +148,7 @@ function Posts({ posts, type = "home" }) {
 
                 return (
                     <>
-                        <div key={post.id} className={styles.postCard}>
+                        <div key={post.id} className={styles.postCard} style={theme == "dark" ? { background: "black" } : {}}>
                             <div className={styles.contentSection}>
 
                                 <div className={styles.metaRow}>
@@ -172,7 +157,7 @@ function Posts({ posts, type = "home" }) {
                                         alt="community"
                                         className={styles.communityAvatar}
                                     />
-                                    <span className={styles.communityName} style={{ cursor: "pointer" }} onClick={() => {
+                                    <span className={styles.communityName} style={theme == "dark" ? { color: "#6b7280", cursor: "pointer" } : { cursor: "pointer" }} onClick={() => {
                                         if (type == "home") {
                                             navigate(`/group/${post.group_id}`, { replace: true })
                                         }
@@ -183,27 +168,50 @@ function Posts({ posts, type = "home" }) {
 
                                         {type == "group" ? ("u/" + post.username) : (post.community)}
                                     </span>
-                                    <span className={styles.dot}>•</span>
+                                    <span className={styles.dot} style={theme == "dark" ? { color: "white" } : {}}>•</span>
                                     <span>{post.time}</span>
                                 </div>
 
                                 <h2 className={styles.title} onClick={() => {
                                     navigate("/post/" + post.id);
-                                }}>
+                                }} style={theme == "dark" ? { color: "white" } : {}}>
                                     {post.title}
                                 </h2>
 
                                 {renderContent(post.content)}
 
                                 <div className={styles.actionBar}>
-                                    <div className={styles.voteBox}>
-                                        <button className={styles.voteBtn}>▲</button>
-                                        <span>{post.upvotes}</span>
-                                        <button className={styles.voteBtn}>▼</button>
+                                    <div className={styles.voteBox} style={theme == "dark" ? {background: "#48484b", color: "#c9c4c4"} : {}}>
+                                        <button style={{ color: post.user_liked ? 'red' : '' }} className={styles.voteBtn} onClick={async () => {
+                                            updatePosts(prev => {
+                                                let neu = [...prev];
+                                                if (neu[ind].user_liked) return prev;
+                                                neu[ind].likes_count++;
+                                                neu[ind].user_liked = true;
+                                                neu[ind].user_disliked = false;
+                                                return neu;
+                                            })
+                                            await reactToPost(post.id, "like");
+                                        }}>▲</button>
+                                        {/* <span>{post.upvotes}</span> */}
+                                        <span>{post.likes_count}</span>
+                                        {/* {JSON.stringify(post)+"post is "} */}
+                                        <button style={{ color: post.user_disliked ? 'red' : '' }} className={styles.voteBtn} onClick={async () => {
+                                            updatePosts(prev => {
+                                                let neu = [...prev];
+                                                if (neu[ind].user_disliked) return prev;
+                                                neu[ind].likes_count--;
+                                                neu[ind].user_liked = false;
+                                                neu[ind].user_disliked = true;
+                                                return neu;
+                                            })
+                                            await reactToPost(post.id, "dislike");
+                                            console.log(posts);
+                                        }}>▼</button>
                                     </div>
 
-                                    <div className={styles.actionItem} onClick={()=>{
-                                        navigate("/post/"+post.id)
+                                    <div className={styles.actionItem} style={theme == "dark" ? {background: "#48484b",color: "#c9c4c4"} : {}} onClick={() => {
+                                        navigate("/post/" + post.id)
                                     }}>
                                         <svg
                                             viewBox="0 0 24 24"
@@ -217,12 +225,12 @@ function Posts({ posts, type = "home" }) {
                                         >
                                             <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
                                         </svg>
-                                        <span>{post.comments}</span>
+                                        <span>{post.comment_count}</span>
                                     </div>
 
                                     <SaveButton saved={post.id == savedPost} onClick={() => { updateSavedPost(post.id) }}></SaveButton>
 
-                                    <div className={styles.actionItem}>
+                                    <div className={styles.actionItem} style={theme == "dark" ? {background: "#48484b",color: "#c9c4c4"} : {}}>
                                         <svg
                                             viewBox="0 0 24 24"
                                             fill="none"
@@ -244,11 +252,11 @@ function Posts({ posts, type = "home" }) {
                                 </div>
 
                             </div>
-                        </div>
+                        </div >
                     </>
                 )
             })}
-        </div>
+        </div >
     );
 }
 

@@ -1,24 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import styles from "./post.module.css";
 import Posts from "../components/posts/posts";
 import { useParams } from "react-router-dom";
 import Comment from "../components/posts/comment";
+import { getComments, getPost, makeComment } from "../services/postservices";
+import { AuthContext } from "../context/UserContext";
+import Loader from "../components/loader";
 
 function PostView() {
 
   const { postId } = useParams();
   const POST_ID = postId;
 
-  let [post, updatePosts] = useState([{
-    community: "r/webdev",
-    author: "DeepCoder",
-    time: "5 hours ago",
-    title: "Understanding React Rendering in Depth",
-    content:
-      "React rendering can feel confusing at first. The key is understanding how state changes trigger re-renders and reconciliation.",
-  }]);
+  let [post, updatePosts] = useState(null);
 
-  const [comments,setComments] = useState([
+  const { user, theme } = useContext(AuthContext);
+
+  const [comments, setComments] = useState([
     {
       "id": 1,
       "content": "Great explanation!",
@@ -37,48 +35,77 @@ function PostView() {
   ])
   useEffect(() => {
     async function operate() {
-      const resp = await fetch("http://localhost:3000/api/posts/getpost/" + POST_ID,{
-        method: "GET",
-        credentials: "include"
-      });
-      const serverData = await resp.json();
-      const postNeu = [
-        {
-          id: serverData.id,
-          community: "h/" + serverData.group_name,
-          communityAvatar: serverData.group_icon,
-          time: serverData.created_at,
-          title: serverData.title,
-          content: serverData.content,
-          upvotes: serverData.likes_count,
-          comments: serverData.dislikes_count,
-          ...serverData
-        }
-      ];
+      const postNeu = await getPost(POST_ID, user);
       updatePosts(postNeu);
 
     }
     async function operate2() {
-      const resp = await fetch("http://localhost:3000/api/posts/comments/" + POST_ID);
-      const serverData = await resp.json();
-      console.log(serverData)
+      const serverData = await getComments(POST_ID);
       setComments(serverData.comments);
 
     }
     operate();
     operate2();
-  }, [])
+
+    console.log("final user posts is as follows");
+    console.log(post);
+  }, [user])
+
+  useEffect(() => {
+    console.log("updated post in operation 1 ")
+    console.log(post)
+  }, [post]);
 
 
+  const [newComment, setNewComment] = useState("");
+  async function refreshComments() {
+    const serverData = await getComments(POST_ID);
+    setComments(serverData.comments);
+
+    setNewComment("");
+  }
+  async function handleSubmit() {
+    console.log(newComment);
+    if (!newComment.trim()) return;
+
+    const payload = {
+      content: newComment,
+      postId: POST_ID,
+      parentId: null
+    };
+
+    try {
+      // call backend service
+      // await addComment(payload);
+      await makeComment(payload.content, payload.postId, payload.parentId);
+
+      // reload comments
+      refreshComments();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  if(!post){
+    return <Loader/>
+  }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={theme == "dark" ? { background: "black", paddingTop: "90px" } : { paddingTop: "90px" }}>
       <div className={styles.container}>
-        <Posts posts={post} type={"group"} />
+        <Posts updatePosts={updatePosts} posts={post} type={"group"} />
+        <div className={styles.commentBox}>
+          <textarea
+            placeholder="Add a comment..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
 
-        <div className={styles.commentsSection} style={{background: "transparent"}}>
+          <button onClick={handleSubmit}>Submit</button>
+        </div>
+        <div className={styles.commentsSection} style={{ background: "transparent" }}>
           {comments.map((comment) => (
-            <Comment key={comment.id} comment={comment} />
+            <Comment postId={POST_ID} key={comment.id} comment={comment} refreshComments={refreshComments} />
           ))}
         </div>
       </div>

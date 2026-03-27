@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import styles from "./createpost.module.css";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../context/UserContext";
+import { addMedia } from "../services/firebaseservices";
 
 function CreatePost() {
   const { groupId } = useParams();
@@ -10,60 +12,24 @@ function CreatePost() {
   const [body, setBody] = useState("");
   const [media, setMedia] = useState([]);
   const [uploading, setUploading] = useState(false);
-
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  /* ================= MULTIPLE FILE UPLOAD ================= */
 
-  const handleFileChange = async (e) => {
+  const uploadFiles = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
     setUploading(true);
 
-    const newMedia = [];
-
-    for (let file of files) {
-      const formData = new FormData();
-      formData.append("files", file);
-
-      try {
-        const resp = await fetch("http://localhost:3000/api/posts/upload", {
-          method: "POST",
-          credentials: "include",
-          body: formData
-        });
-
-        const data = await resp.json();
-
-
-
-        if (data.status) {
-          console.log("data url is as follows");
-          const url = (data.url.data.path);
-          const isVideo = file.type.startsWith("video");
-
-          newMedia.push({
-            type: isVideo ? "video" : "image",
-            preview: "https://hhccbekozmwipzovsnkk.supabase.co/storage/v1/object/public/hivemind_posts/" + url,
-            storagePath: "https://hhccbekozmwipzovsnkk.supabase.co/storage/v1/object/public/hivemind_posts/" + url
-          });
-        }
-
-      } catch (err) {
-        console.error("Upload error:", err);
-      }
-    }
+    const newMedia = await addMedia(files)
 
     setMedia(prev => [...prev, ...newMedia]);
     setUploading(false);
 
-    // Reset input so same file can be re-selected
     e.target.value = null;
   };
-  const navigate = useNavigate();
 
-  /* ================= CREATE POST ================= */
 
   const handleCreatePost = async () => {
     let encoded = body.trim();
@@ -112,13 +78,15 @@ function CreatePost() {
     }
   };
 
+  const { theme } = useAuth();
+
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={theme == "dark" ? { paddingTop: "90px", background: "black", color: "white" } : { paddingTop: "90px" }} >
       <div className={styles.container}>
 
         <h2>Create post</h2>
 
-        {/* Tabs */}
+
         <div className={styles.tabs}>
           {["Text", "Images & Video"].map(tab => (
             <div
@@ -126,32 +94,34 @@ function CreatePost() {
               className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""
                 }`}
               onClick={() => setActiveTab(tab)}
+              style={theme == "dark" ? { color: (activeTab === tab ? "white" : "") } : {}}
             >
               {tab}
             </div>
           ))}
         </div>
 
-        {/* Title */}
+
         <input
           type="text"
           placeholder="Title*"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className={styles.titleInput}
+          style={{ marginTop: "10px" }}
         />
 
-        {/* TEXT TAB */}
+
         {activeTab === "Text" && (
           <textarea
             placeholder="Body text..."
             value={body}
             onChange={(e) => setBody(e.target.value)}
+            style={{ marginTop: "10px" }}
             className={styles.textarea}
           />
         )}
 
-        {/* MEDIA TAB */}
         {activeTab === "Images & Video" && (
           <div className={styles.uploadBox}>
 
@@ -162,10 +132,9 @@ function CreatePost() {
               accept="image/*,video/*"
               ref={fileInputRef}
               style={{ display: "none" }}
-              onChange={handleFileChange}
+              onChange={uploadFiles}
             />
 
-            {/* Initial Upload Button */}
             {media.length === 0 && (
               <button
                 type="button"
@@ -178,7 +147,6 @@ function CreatePost() {
 
             {uploading && <p>Uploading...</p>}
 
-            {/* PREVIEW */}
             <div style={{ marginTop: "15px" }}>
               {media.map((m, index) => (
                 <div
@@ -197,7 +165,6 @@ function CreatePost() {
                 </div>
               ))}
 
-              {/* Add More Button */}
               {media.length > 0 && (
                 <button
                   type="button"
@@ -220,7 +187,6 @@ function CreatePost() {
           </div>
         )}
 
-        {/* Footer */}
         <div className={styles.footer}>
           <button
             className={styles.postBtn}

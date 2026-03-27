@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import styles from "./login.module.css";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/UserContext";
+import { login } from "../services/authservices";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { setUser } = useContext(AuthContext);
+  const { updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const isValid = email.trim() !== "" && password.trim() !== "";
@@ -20,26 +21,12 @@ function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        "http://localhost:3000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // 🔥 IMPORTANT
-          body: JSON.stringify({
-            username: email, // backend expects username
-            password,
-          }),
-        }
-      );
 
-      const data = await res.json();
+      const data = await login(email,password);
 
       if (data.status) {
-        setUser(data.user);     // update global auth state
-        navigate("/home");      // redirect
+        updateUser(data.user);     // update global auth state
+        navigate("/");      // redirect
       } else {
         setError(data.message);
       }

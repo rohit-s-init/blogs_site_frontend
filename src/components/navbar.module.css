@@ -6,6 +6,10 @@
   height: 60px;
   border-bottom: 1px solid #eee;
   background: white;
+  position: fixed;
+  width: 100%;
+  box-sizing: border-box;
+  top: 0px;
 }
 
 .left {
@@ -17,6 +21,9 @@
 
 .logo {
   height: 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
 
 .brand {
@@ -96,7 +103,7 @@
   width: 240px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   padding: 10px 0;
   opacity: 0;
   visibility: hidden;
@@ -188,10 +195,10 @@
   transition: 0.3s;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background: #4f46e5;
 }
 
-input:checked + .slider::before {
+input:checked+.slider::before {
   transform: translateX(18px);
 }

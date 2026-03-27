@@ -1,4 +1,8 @@
+import { useAuth } from "../context/UserContext";
+
 function NotificationIcon({ size = 24, color = "currentColor" }) {
+
+  const { theme } = useAuth();
   return (
     <svg
       width={size}
@@ -6,6 +10,7 @@ function NotificationIcon({ size = 24, color = "currentColor" }) {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={theme == "dark" ? { color: "white" } : {}}
     >
       {/* Bell */}
       <path

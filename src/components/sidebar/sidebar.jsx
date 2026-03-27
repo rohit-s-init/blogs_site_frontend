@@ -1,18 +1,18 @@
+import { useAuth } from "../../context/UserContext";
+import Loader from "../loader";
 import styles from "./sidebar.module.css";
 
-function RecentPosts({posts}) {
+function RecentPosts({ posts }) {
+  console.log("initial posts")
+  console.log(posts);
 
+  const { theme } = useAuth();
 
-  return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <span>RECENT POSTS</span>
-        <button>Clear</button>
-      </div>
-
+  function renderPosts() {
+    return (<>
       {posts.map((post) => (
         <div key={post.id} className={styles.item}>
-          
+
           <div className={styles.left}>
             <img
               src={post.communityAvatar}
@@ -26,7 +26,7 @@ function RecentPosts({posts}) {
               {post.community} • {post.time}
             </div>
 
-            <div className={styles.title}>
+            <div className={styles.title} style={theme == "dark" ? { color: "white" } : {}}>
               {post.title}
             </div>
 
@@ -44,6 +44,19 @@ function RecentPosts({posts}) {
           )}
         </div>
       ))}
+    </>)
+  }
+
+  return (
+    <div className={styles.card} style={theme == "dark" ? { backgroundColor: "#181a1c" } : {}}>
+      <div className={styles.header} style={theme == "dark" ? { backgroundColor: "#181a1c", color: "white" } : {}}>
+        <span>RECENT POSTS</span>
+        <button>Clear</button>
+      </div>
+
+      {posts == null ? <Loader /> : renderPosts()}
+
+
     </div>
   );
 }

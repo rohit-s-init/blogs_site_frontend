@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./register.module.css";
 import { AuthContext } from "../context/UserContext";
@@ -22,14 +22,16 @@ function Signup() {
 
   const otpInputs = useRef([]);
 
-  const {user,updateUser} = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
 
   const passwordsMatch = password === confirmPassword;
-  const isValid =
+  const isValid = useMemo(() => (
     username.trim() !== "" &&
     email.trim() !== "" &&
     password.trim() !== "" &&
-    passwordsMatch;
+    passwordsMatch)
+    , [username, email, password, passwordsMatch]
+  )
 
   /* ================= REGISTER ================= */
   const handleRegister = async () => {
@@ -177,9 +179,8 @@ function Signup() {
         )}
 
         <button
-          className={`${styles.signupBtn} ${
-            !isValid ? styles.disabled : ""
-          }`}
+          className={`${styles.signupBtn} ${!isValid ? styles.disabled : ""
+            }`}
           disabled={!isValid}
           onClick={handleRegister}
         >

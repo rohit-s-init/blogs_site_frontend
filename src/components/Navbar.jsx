@@ -1,15 +1,14 @@
 import styles from "./navbar.module.css";
 import logo from "../assets/logo.png";
-import AddPostIcon from "./icons/addpost";
-import AddCommunityIcon from "./icons/addcomm";
-import NotificationIcon from "./icons/notificicon";
+import AddCommunityIcon from "../icons/addcomm";
+import NotificationIcon from "../icons/notificicon";
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/UserContext";
 
 function Navbar({ search, updateSearch, setCommWindow }) {
   const navigate = useNavigate();
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser, theme, updateTheme } = useContext(AuthContext);
 
   const [isDark, setIsDark] = useState(false);
 
@@ -31,17 +30,30 @@ function Navbar({ search, updateSearch, setCommWindow }) {
     } else {
       console.log("light");
     }
+
+    if (theme == "light") {
+      updateTheme("dark");
+    }
+    else {
+      updateTheme("light")
+    }
+
   };
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} style={{ borderBottom: "1px solid white", backgroundColor: theme == "dark" ? "black" : "", zIndex: "100" }}>
       {/* LEFT */}
       <div
         className={styles.left}
         onClick={() => navigate("/")}
       >
         <img src={logo} alt="HiveMind" className={styles.logo} />
-        <span className={styles.brand}>hivemind</span>
+        {/* <img
+          src={post}
+          alt="community"
+          className={styles.communityAvatar}
+        /> */}
+        <span className={styles.brand} style={{color: "#ff0000"}}>hivemind</span>
       </div>
 
       {/* SEARCH */}
@@ -50,9 +62,10 @@ function Navbar({ search, updateSearch, setCommWindow }) {
           type="text"
           placeholder="Find anything"
           className={styles.search}
-          onChange={(event)=>{
+          onChange={(event) => {
             updateSearch(event.target.value);
           }}
+          style={theme=="dark"?{background: "black"}:{}}
         />
       </div>
 
@@ -63,6 +76,7 @@ function Navbar({ search, updateSearch, setCommWindow }) {
           <button
             className={styles.loginBtn}
             onClick={() => navigate("/login")}
+            style={theme=="dark"?{color: "white"}:{}}
           >
             Login
           </button>

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import styles from "./profile.module.css";
 import PostMain from "../components/posts/posts.jsx"
 import { useParams } from "react-router-dom";
+import * as userServices from "../services/userservices.js"
+import Loader from "../components/loader.jsx";
+import { useAuth } from "../context/UserContext.jsx";
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("posts");
@@ -11,16 +14,8 @@ function Profile() {
 
   // for testing 
   const USER_ID = userId;
-  const BASE_URL = "http://localhost:3000/api/user"
 
-  const [user, setUser] = useState({
-    username: "",
-    avatar: "",
-    bio: "",
-    followers: 0,
-    following: 0,
-    activeFrom: ""
-  });
+  const [user, setUser] = useState(null);
   const [posts, updateRecentPosts] = useState([]);
   const [comments, updateComments] = useState([]);
 
@@ -29,64 +24,21 @@ function Profile() {
 
   async function fetchProfile() {
     try {
-      const res = await fetch(`${BASE_URL}/profile/${USER_ID}`);
-      const data = await res.json();
-      console.log(data);
+      const profile = await userServices.fetchProfile(USER_ID)
 
-      // 🔥 data.profile is important
-      const profile = data.profile;
-
-      setUser({
-        username: profile.username,
-        avatar: profile.icon,
-        bio: profile.description,
-        followers: profile.followers_count,
-        following: profile.following_count,
-        activeFrom: new Date(profile.created_at).toLocaleDateString()
-      });
+      setUser(profile);
 
     } catch (err) {
       console.error("Profile fetch error:", err);
     }
   }
   async function fetchRecentComments() {
-    const res = await fetch(`${BASE_URL}/user_recent_comments/${USER_ID}/0`);
-    const data = await res.json();
-    updateComments((prev) => {
-      const curComm = data.comments.map(({ id, content, created_at, post_title, post_id }) => {
-        return {
-          id: id,
-          postTitle: post_title,
-          content: content,
-          upvotes: 22,
-          post_id
-        }
-      })
-      console.log(curComm);
-      return [...prev, ...curComm];
-    })
-
+    const comments = await userServices.fetchRecentComments(USER_ID);
+    updateComments(comments);
   }
   async function fetchRecentPosts() {
-    const res = await fetch(`${BASE_URL}/user_recent_posts/${USER_ID}/0`);
-    const data = await res.json();
-
-    updateRecentPosts((prev) => {
-      return data.posts.map((serverData) => {
-        return {
-          id: serverData.id,
-          community: "h/" + serverData.group_name,
-          communityAvatar: serverData.group_icon,
-          time: serverData.created_at,
-          title: serverData.title,
-          content: serverData.content,
-          upvotes: serverData.user_liked,
-          comments: serverData.comment_count,
-          ...serverData
-        }
-      })
-    })
-
+    const recentPosts = await userServices.fetchRecentPosts(USER_ID);
+    updateRecentPosts(recentPosts);
   }
 
   useEffect(() => {
@@ -122,9 +74,15 @@ function Profile() {
     downvoted: <Downvoted />,
   };
 
+  const { theme } = useAuth();
+
+  if (!user) {
+    return <Loader />
+  }
+
   return (
     <>
-      <div className={styles.profileContainer}>
+      <div className={styles.profileContainer} style={theme == "dark" ? { paddingTop: "90px", color: "#999" } : { paddingTop: "90px" }}>
 
         <div className={styles.activeFrom}>
           Active from {user.activeFrom}
@@ -138,7 +96,7 @@ function Profile() {
           />
 
           <div className={styles.profileInfo}>
-            <h2>{user.username}</h2>
+            <h2 style={theme == "dark" ? { color: "#e1e0e8" } : {}}>{user.username}</h2>
             <p className={styles.username}>u/{user.username}</p>
             <p className={styles.bio}>{user.bio}</p>
 
@@ -170,6 +128,7 @@ function Profile() {
               onClick={() => setActiveTab(tab)}
               className={`${styles.tab} ${activeTab === tab ? styles.active : ""
                 }`}
+              style={theme == "dark" ? { color: "#999" } : {}}
             >
               {tab.toUpperCase()}
             </button>

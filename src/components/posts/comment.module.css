@@ -110,4 +110,32 @@
   color: black;
 }
 
+.replyBox {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
+.replyBox textarea {
+  resize: none;
+  min-height: 60px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.replyBox button {
+  align-self: flex-end;
+  padding: 4px 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.replyBox button:hover {
+  background: #1d4ed8;
+}

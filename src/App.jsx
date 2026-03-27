@@ -12,50 +12,52 @@ import Signup from './pages/register.jsx'
 import Profile from './pages/Profile.jsx'
 import Group from './pages/group.jsx'
 import { AuthContext } from './context/UserContext.jsx'
-import ProtectedRoutes from './components/secureRoutes/ProtectedRoutes.jsx'
-import PublicRoutes from './components/secureRoutes/PublicRoutes.jsx'
+import ProtectedRoutes from './secureRoutes/ProtectedRoutes.jsx'
+import PublicRoutes from './secureRoutes/PublicRoutes.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
 
   const [communityWindow, setCommWindow] = useState(false);
-  const [search,updateSearch] = useState("");
+  const [search, updateSearch] = useState("");
 
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser, theme, updateTheme } = useContext(AuthContext);
   console.log(user);
 
   return (
-    <>
+    <div style={{ background: theme == "dark" ? "black" : "",paddingBottom: "100vh" }}>
       <Navbar search={search} updateSearch={updateSearch} setCommWindow={setCommWindow} />
-      <Routes>
-        <Route path='/' element={<Home search={search} />} />
-        <Route path='/notification' element={
-          <ProtectedRoutes>
-            <Notification />
-          </ProtectedRoutes>
-        } />
-        <Route path='/post/:postId' element={<PostView />} />
-        <Route path='/createpost/:groupId' element={
-          <ProtectedRoutes>
-            <CreatePost />
-          </ProtectedRoutes>
-        } />
-        <Route path='/login' element={
-          <PublicRoutes>
-            <Login />
-          </PublicRoutes>
-        } />
-        <Route path='/signin' element={
-          <PublicRoutes>
-            <Signup />
-          </PublicRoutes>
-        } />
-        <Route path='/profile/:userId' element={<Profile />} />
-        <Route path='/group/:groupId' element={<Group />} />
-      </Routes>
-      {communityWindow && <CreateCommunity setCommWindow={setCommWindow} />}
+      <div>
+        <Routes>
+          <Route path='/' element={<Home search={search} />} />
+          <Route path='/notification' element={
+            <ProtectedRoutes>
+              <Notification />
+            </ProtectedRoutes>
+          } />
+          <Route path='/post/:postId' element={<PostView />} />
+          <Route path='/createpost/:groupId' element={
+            <ProtectedRoutes>
+              <CreatePost />
+            </ProtectedRoutes>
+          } />
+          <Route path='/login' element={
+            <PublicRoutes>
+              <Login />
+            </PublicRoutes>
+          } />
+          <Route path='/signin' element={
+            <PublicRoutes>
+              <Signup />
+            </PublicRoutes>
+          } />
+          <Route path='/profile/:userId' element={<Profile />} />
+          <Route path='/group/:groupId' element={<Group />} />
+        </Routes>
+        {communityWindow && <CreateCommunity setCommWindow={setCommWindow} />}
+      </div>
 
-    </>
+    </div>
   )
 }
 

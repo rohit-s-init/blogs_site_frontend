@@ -102,4 +102,38 @@
   color: black;
 }
 
+.commentBox {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.commentBox textarea {
+  resize: none;
+  min-height: 80px;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.commentBox button {
+  align-self: flex-end;
+  padding: 6px 14px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.commentBox button:hover {
+  background: #1d4ed8;
+}
+
 

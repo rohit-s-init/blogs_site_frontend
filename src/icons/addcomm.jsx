@@ -1,4 +1,7 @@
+import { useAuth } from "../context/UserContext";
+
 function AddCommunityIcon({ size = 24, color = "currentColor" }) {
+  const { theme } = useAuth();
   return (
     <svg
       width={size}
@@ -6,6 +9,8 @@ function AddCommunityIcon({ size = 24, color = "currentColor" }) {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={theme == "dark" ? { color: "white" } : {}}
+
     >
       {/* Main User */}
       <path

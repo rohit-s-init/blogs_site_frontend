@@ -3,6 +3,8 @@ import styles from "./group.module.css";
 import Posts from "../components/posts/posts.jsx"; // your existing feed component
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/UserContext.jsx";
+import { getGroup, getGroupPosts } from "../services/groupservices.js";
+import Loader from "../components/loader.jsx";
 
 function Group() {
     const [joined, setJoined] = useState(false);
@@ -14,105 +16,47 @@ function Group() {
         description: "Discuss everything about JavaScript.",
         members: 12450,
         online: 321,
-        createdAt: "Jan 2024"
+        createdAt: "Jan 2024",
+        isDemo: true
     });
-
+    const navigate = useNavigate();
     const { groupId } = useParams();
 
 
 
     const [description, setDescription] = useState("");
     const [rules, setRules] = useState([]);
-    const { user } = useContext(AuthContext);
+    const { user, theme } = useContext(AuthContext);
 
-    /* ================= LOAD DESCRIPTION ================= */
 
     useEffect(() => {
         async function operate() {
-            // 🔥 Hardcoded for now (later fetch from API)
-            console.log("user from group");
-            console.log(user);
-
-            const resp = await fetch(`http://localhost:3000/api/group/getgroup${user ? "auth" : ""}/` + groupId, { method: "GET",credentials: "include" });
-            const data = await resp.json();
-            console.log(data);
-            const group = data.group;
-
-            updateGroup(() => {
-                return {
-                    name: group.name,
-                    icon: group.icon,
-                    background: group.background, // from DB
-                    description: group.description,
-                    members: group.members_count,
-                    online: 321,
-                    createdAt: group.created_at,
-                    ...group
-                }
-            })
-
-            const fetchedDescription = data.group.description;
-
-
+            await getGroup(user, groupId, updateGroup);
+            await getGroupPosts(groupId, 0, updatePosts);
+            const fetchedDescription = group.description;
             setDescription(fetchedDescription);
-            console.log(description);
-            console.log(data);
-
             setJoined(group.is_member);
-
-        }
-        operate()
-    }, [user]);
-
-
-    useEffect(() => {
-        async function operate() {
-
-            const resp = await fetch(`http://localhost:3000/api/group/posts/${groupId}/0`, { method: "GET" });
-            const data = await resp.json();
-            updatePosts(data.posts.map(val => {
-
-                let one = {
-                    id: val.id,
-                    community: "h/" + val.group_name,
-                    communityAvatar: val.group_icon,
-                    time: val.createdAt,
-                    title: val.title,
-                    content: val.content,
-                    upvotes: val.likes_count,
-                    comments: val.comment_count,
-                    ...val
-                }
-                console.log(one);
-                return one;
-            }));
         }
         operate();
-    }, [])
-
-
-
-    /* ================= PARSE RULES ================= */
+    }, [user]);
 
     useEffect(() => {
-        if (!description) {console.log("returning from null desc");return};
+        if (!description) { console.log("returning from null desc"); return };
 
-        const parts = description.split("---RULES---");
-        console.log("parts as follows");
-        console.log(parts);
+        const parts = group.description.split("---RULES---");
 
         if (parts.length > 1) {
-            const rulesSection = parts[1]
-                .trim()
-                .split("\n")
-                .map(rule => rule.trim())
-                .filter(rule => rule.length > 0);
-
+            const rulesSection = parts[1].split("\n").map(rule => rule.trim()).filter(rule => rule.length > 0);
             setRules(rulesSection);
         }
-    }, [description]);
 
-    const navigate = useNavigate();
+    }, [description, user, group]);
+
+
+
+    if (group.isDemo) {
+        return <Loader />
+    }
 
 
     return (
@@ -124,7 +68,7 @@ function Group() {
                 style={{ backgroundImage: `url(${group.background})` }}
             />
 
-            <div className={styles.layout}>
+            <div className={styles.layout} style={theme == "dark" ? { background: "black" } : {}}>
 
                 {/* LEFT SECTION */}
                 <div className={styles.main}>
@@ -146,10 +90,10 @@ function Group() {
                         </div>
 
                         <button
-                            className={joined ? styles.joinedBtn : styles.joinBtn}
+                            className={group.is_member ? styles.joinedBtn : styles.joinBtn}
                             onClick={() => setJoined(!joined)}
                         >
-                            {joined ? "Joined" : "Join"}
+                            {group.is_member ? "Joined" : "Join"}
                         </button>
                     </div>
 
@@ -178,17 +122,17 @@ function Group() {
                             </div>
                             <div>
                                 <button
-                                    className={joined ? styles.joinedBtn : styles.joinBtn}
+                                    className={group.is_member ? styles.joinedBtn : styles.joinBtn}
                                     onClick={() => setJoined(!joined)}
                                 >
-                                    {joined ? "Joined" : "Join"}
+                                    {group.is_member ? "Joined" : "Join"}
                                 </button>
                             </div>
                         </div>
 
                         <button
                             className={styles.createPostBtn}
-                            onClick={() => navigate("/createpost/"+group.id)}
+                            onClick={() => navigate("/createpost/" + group.id)}
                         >
                             + Create Post
                         </button>
