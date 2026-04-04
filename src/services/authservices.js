@@ -17,7 +17,7 @@ export async function logout() {
 }
 
 export async function getMe() {
-    let resp = await api.post("user/me");
+    let resp = await api.get("user/me");
     return resp.data;
 }
 
