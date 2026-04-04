@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./register.module.css";
 import { AuthContext } from "../context/UserContext";
+import { registerUser, resendOtp, verifyUser } from "../services/authservices";
 
 function Signup() {
   const navigate = useNavigate();
@@ -37,12 +38,15 @@ function Signup() {
   const handleRegister = async () => {
     setRegisterError("");
 
-    const res = await fetch("http://localhost:3000/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ username, email, password }),
-    });
+    // const res = await fetch("http://localhost:3000/api/auth/register", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   credentials: "include",
+    //   body: JSON.stringify({ username, email, password }),
+    // });
+
+    const payload = { username, email, password }
+    const res = await registerUser("auth/register", payload);
 
     const data = await res.json();
 
@@ -92,12 +96,15 @@ function Signup() {
   const handleVerifyOtp = async () => {
     const enteredOtp = otp.join("");
 
-    const res = await fetch("http://localhost:3000/api/auth/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, otp: enteredOtp }),
-    });
+    // const res = await fetch("http://localhost:3000/api/auth/verify-otp", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   credentials: "include",
+    //   body: JSON.stringify({ email, otp: enteredOtp }),
+    // });
+
+    const payload = { email, otp: enteredOtp };
+    const res = await verifyUser(payload);
 
     const data = await res.json();
 
@@ -112,11 +119,12 @@ function Signup() {
 
   /* ================= RESEND ================= */
   const handleResend = async () => {
-    await fetch("/api/auth/resend-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
+    // await fetch("/api/auth/resend-otp", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ email }),
+    // });
+    await resendOtp(email);
 
     setOtpError("OTP resent");
     startTimer();

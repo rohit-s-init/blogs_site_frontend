@@ -141,3 +141,8 @@ export async function reactToPost(postId, type) {
     })
     return response;
 }
+
+export async function makePost(payload){
+    const resp = await api.post("posts/createpost",payload);
+    return resp.data;
+}

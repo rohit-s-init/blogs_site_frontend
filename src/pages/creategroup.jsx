@@ -1,13 +1,13 @@
 import { useState } from "react";
 import styles from "./creategroup.module.css";
 import { useNavigate } from "react-router-dom";
+import { createGroup } from "../services/groupservices";
 
 function CreateCommunity({ setCommWindow }) {
   const [step, setStep] = useState(1);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
+  const navigate = useNavigate();
   const [rules, setRules] = useState([
     "Be respectful to others."
   ]);
@@ -15,58 +15,34 @@ function CreateCommunity({ setCommWindow }) {
   const nextStep = () => {
     if (step < 3) setStep(step + 1);
   };
-
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
   };
-
-  /* ================= RULE HANDLERS ================= */
-
   const addRule = () => {
     setRules([...rules, ""]);
   };
-
   const updateRule = (index, value) => {
     const updated = [...rules];
     updated[index] = value;
     setRules(updated);
   };
-
   const removeRule = (index) => {
     const updated = rules.filter((_, i) => i !== index);
     setRules(updated);
   };
 
-  /* ================= FAKE CREATE ================= */
-  const navigate = useNavigate();
 
   const handleCreate = async () => {
-    // Remove empty rules
-    const cleanedRules = rules
-      .map(r => r.trim())
-      .filter(r => r.length > 0);
+    const cleanedRules = rules.map(r => r.trim()).filter(r => r.length > 0);
 
-    // Encode description with rules
-    const encodedDescription =
-      description.trim() +
-      "\n---RULES---\n" +
-      cleanedRules.join("\n");
+    const encodedDescription = description.trim() + "\n---RULES---\n" + cleanedRules.join("\n");
 
     const payload = {
       name: title.trim(),
       description: encodedDescription
     };
 
-    const data = await fetch("http://localhost:3000/api/group/creategroup", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    })
-
-    const f = await data.json();
+    const f = await createGroup(payload);
     if (f.status) {
       const grpId = f.resp.id;
       navigate("/group/" + grpId);
@@ -74,7 +50,6 @@ function CreateCommunity({ setCommWindow }) {
     else {
       alert(f.message)
     }
-
 
   };
 
@@ -84,7 +59,9 @@ function CreateCommunity({ setCommWindow }) {
 
         <div className={styles.close} onClick={() => setCommWindow(false)}>×</div>
 
-        {/* STEP 1 — TITLE */}
+
+
+
         {step === 1 && (
           <>
             <h2>Name your community</h2>
@@ -99,7 +76,6 @@ function CreateCommunity({ setCommWindow }) {
           </>
         )}
 
-        {/* STEP 2 — DESCRIPTION */}
         {step === 2 && (
           <>
             <h2>Describe your community</h2>
@@ -113,7 +89,6 @@ function CreateCommunity({ setCommWindow }) {
           </>
         )}
 
-        {/* STEP 3 — RULES */}
         {step === 3 && (
           <>
             <h2>Community Rules</h2>
@@ -149,7 +124,10 @@ function CreateCommunity({ setCommWindow }) {
           </>
         )}
 
-        {/* FOOTER */}
+
+
+
+
         <div className={styles.footer}>
           {step > 1 && (
             <button className={styles.backBtn} onClick={prevStep}>
@@ -171,7 +149,7 @@ function CreateCommunity({ setCommWindow }) {
           ) : (
             <button
               className={styles.createBtn}
-              onClick={(e)=>{e.preventDefault();handleCreate()}}
+              onClick={(e) => { e.preventDefault(); handleCreate() }}
               disabled={!title.trim() || !description.trim()}
             >
               Create Community

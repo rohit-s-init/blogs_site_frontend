@@ -48,15 +48,15 @@ function Notification() {
   const getIcon = (type) => {
     switch (type) {
       case "comment":
-        return "💬";
+        return "A";
       case "upvote":
-        return "⬆️";
+        return "B";
       case "follow":
-        return "👤";
+        return "C";
       case "mention":
-        return "🔔";
+        return "D";
       default:
-        return "📌";
+        return "E";
     }
   };
 

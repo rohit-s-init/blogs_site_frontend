@@ -5,6 +5,7 @@ import NotificationIcon from "../icons/notificicon";
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/UserContext";
+import { logout as logout_user } from "../services/authservices";
 
 function Navbar({ search, updateSearch, setCommWindow }) {
   const navigate = useNavigate();
@@ -13,10 +14,7 @@ function Navbar({ search, updateSearch, setCommWindow }) {
   const [isDark, setIsDark] = useState(false);
 
   const logout = async () => {
-    await fetch("http://localhost:3000/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
+    await logout_user();
     updateUser(null);
     navigate("/");
   };

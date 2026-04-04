@@ -36,7 +36,7 @@ function Home({ search }) {
       searchUsers(updateUsers, search);
     }
 
-  }, [search, activeScope])
+  }, [search, activeScope, user])
 
   return (
     <>
@@ -46,8 +46,8 @@ function Home({ search }) {
       <div className={styles.container} style={{ paddingTop: "90px" }} >
         <div>
           <SearchFilter active={activeScope} setActive={updateActiveScope} />
-          {(activeScope == "posts" & posts != null) ? <Posts updatePosts={updatePosts} posts={posts} />:""}
-          {(activeScope == "posts" & posts == null) ? <Loader/>:""}
+          {(activeScope == "posts" & posts != null) ? <Posts updatePosts={updatePosts} posts={posts} /> : ""}
+          {(activeScope == "posts" & posts == null) ? <Loader /> : ""}
 
           {(activeScope == "users" & users != null) ? <UsersList users={users} /> : ""}
           {(activeScope == "users" & users == null) ? <Loader /> : ""}

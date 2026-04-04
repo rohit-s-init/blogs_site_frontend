@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { getMe } from '../services/authservices';
 
 export const AuthContext = createContext(null);
 
@@ -7,10 +8,7 @@ function UserContext({ children }) {
     const [theme, updateTheme] = useState("light");
     async function loadUser() {
         try {
-            const data = await fetch("http://localhost:3000/api/user/me", {
-                method: "GET",
-                credentials: "include"
-            })
+            const data = await getMe();
             const userData = await data.json();
             console.log(userData);
             updateUser(userData.user)

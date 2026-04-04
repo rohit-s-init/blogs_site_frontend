@@ -61,5 +61,10 @@ export async function joinGroup(groupId){
             "Content-Type": "application/json"
         }
     })
-    return resp;
+    return resp.data;
+}
+
+export async function createGroup(payload){
+    const resp = await api.post("group/creategroup",payload);
+    return resp.data;
 }

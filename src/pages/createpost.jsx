@@ -3,6 +3,7 @@ import styles from "./createpost.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/UserContext";
 import { addMedia } from "../services/firebaseservices";
+import { makePost } from "../services/postservices";
 
 function CreatePost() {
   const { groupId } = useParams();
@@ -14,6 +15,8 @@ function CreatePost() {
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { theme, user } = useAuth();
+
 
 
   const uploadFiles = async (e) => {
@@ -50,25 +53,12 @@ function CreatePost() {
       groupId: groupId
     };
 
-    console.log("🚀 Final payload:", payload);
 
     try {
-      const res = await fetch("http://localhost:3000/api/posts/createpost", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-
+      const data = await makePost(payload);
       if (data.status) {
         const postId = data.resp.id;
-
         navigate("/post/" + postId);
-
-        console.log("✅ Post created");
       }
       else {
         alert(data.message);
@@ -78,7 +68,6 @@ function CreatePost() {
     }
   };
 
-  const { theme } = useAuth();
 
   return (
     <div className={styles.page} style={theme == "dark" ? { paddingTop: "90px", background: "black", color: "white" } : { paddingTop: "90px" }} >
