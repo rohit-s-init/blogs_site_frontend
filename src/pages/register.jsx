@@ -46,7 +46,7 @@ function Signup() {
     // });
 
     const payload = { username, email, password }
-    const res = await registerUser("auth/register", payload);
+    const res = await registerUser(payload);
 
     const data = await res.json();
 
