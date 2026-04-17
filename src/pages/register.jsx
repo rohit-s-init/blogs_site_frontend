@@ -104,9 +104,9 @@ function Signup() {
     // });
 
     const payload = { email, otp: enteredOtp };
-    const res = await verifyUser(payload);
+    const data = await verifyUser(payload);
 
-    const data = await res.json();
+    // const data = await res.json();
 
     if (data.status) {
       localStorage.setItem("token", data.token);
