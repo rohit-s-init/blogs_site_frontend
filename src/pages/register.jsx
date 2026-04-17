@@ -46,9 +46,9 @@ function Signup() {
     // });
 
     const payload = { username, email, password }
-    const res = await registerUser(payload);
+    const data = await registerUser(payload);
 
-    const data = await res.json();
+    // const data = await res.json();
 
     if (data.status) {
       setShowOtpModal(true);
