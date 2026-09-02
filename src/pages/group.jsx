@@ -3,11 +3,10 @@ import styles from "./group.module.css";
 import Posts from "../components/posts/posts.jsx"; // your existing feed component
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/UserContext.jsx";
-import { getGroup, getGroupPosts } from "../services/groupservices.js";
+import { getGroup, getGroupPosts, joinGroup } from "../services/groupservices.js";
 import Loader from "../components/loader.jsx";
 
 function Group() {
-    const [joined, setJoined] = useState(false);
     const [posts, updatePosts] = useState([]);
     const [group, updateGroup] = useState({
         name: "javascript",
@@ -35,10 +34,29 @@ function Group() {
             await getGroupPosts(groupId, 0, updatePosts);
             const fetchedDescription = group.description;
             setDescription(fetchedDescription);
-            setJoined(group.is_member);
         }
         operate();
     }, [user]);
+
+    async function handleJoinClick() {
+        if (group.is_member) return;
+
+        if (!user) {
+            alert("Please Login");
+            return;
+        }
+
+        try {
+            await joinGroup(groupId);
+            updateGroup((prev) => ({
+                ...prev,
+                is_member: true,
+                members: prev.members + 1,
+            }));
+        } catch (error) {
+            console.error("Join error:", error);
+        }
+    }
 
     useEffect(() => {
         if (!description) { console.log("returning from null desc"); return };
@@ -91,7 +109,7 @@ function Group() {
 
                         <button
                             className={group.is_member ? styles.joinedBtn : styles.joinBtn}
-                            onClick={() => setJoined(!joined)}
+                            onClick={handleJoinClick}
                         >
                             {group.is_member ? "Joined" : "Join"}
                         </button>
@@ -123,7 +141,7 @@ function Group() {
                             <div>
                                 <button
                                     className={group.is_member ? styles.joinedBtn : styles.joinBtn}
-                                    onClick={() => setJoined(!joined)}
+                                    onClick={handleJoinClick}
                                 >
                                     {group.is_member ? "Joined" : "Join"}
                                 </button>
