@@ -6,21 +6,23 @@ export const AuthContext = createContext(null);
 function UserContext({ children }) {
     const [user, updateUser] = useState(null);
     const [theme, updateTheme] = useState("light");
+    const [loading, setLoading] = useState(true);
     async function loadUser() {
         try {
-            const data = await getMe();
-            const userData = await data.json();
+            const userData = await getMe();
             console.log(userData);
             updateUser(userData.user)
         } catch (error) {
 
+        } finally {
+            setLoading(false);
         }
     }
     useEffect(() => {
         loadUser();
     }, [])
     return (
-        <AuthContext.Provider value={{ user, updateUser, theme, updateTheme }}>
+        <AuthContext.Provider value={{ user, updateUser, theme, updateTheme, loading }}>
             {children}
         </AuthContext.Provider>
     )
