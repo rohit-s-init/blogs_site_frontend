@@ -39,6 +39,29 @@ export async function fetchRecentComments(USER_ID) {
     });
 }
 
+export async function checkIsFollowing(followerId, followingId) {
+    const response = await api.get(`user/isfollowing/${followerId}/${followingId}`);
+    return response.data.isFollowing;
+}
+
+export async function followUser(followingId) {
+    const response = await api.post("user/follow", { followingId }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    return response.data;
+}
+
+export async function unfollowUser(followingId) {
+    const response = await api.post("user/unfollow", { followingId }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    return response.data;
+}
+
 export async function fetchRecentPosts(USER_ID) {
     const response = await api.get(`user/user_recent_posts/${USER_ID}/0`);
     const data = response.data;

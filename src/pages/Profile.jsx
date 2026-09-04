@@ -10,9 +10,10 @@ function Profile() {
   const [activeTab, setActiveTab] = useState("posts");
   const [isFollowing, setIsFollowing] = useState(false);
   const { userId } = useParams();
+  const { user: authUser, theme } = useAuth();
 
 
-  // for testing 
+  // for testing
   const USER_ID = userId;
 
   const [user, setUser] = useState(null);
@@ -46,6 +47,34 @@ function Profile() {
   }, []);
 
   useEffect(() => {
+    async function checkFollowing() {
+      if (!authUser || !USER_ID) return;
+      const following = await userServices.checkIsFollowing(authUser.id, USER_ID);
+      setIsFollowing(!!following);
+    }
+    checkFollowing();
+  }, [authUser, USER_ID]);
+
+  async function handleFollowClick() {
+    if (!authUser) {
+      alert("Please Login");
+      return;
+    }
+
+    try {
+      if (isFollowing) {
+        await userServices.unfollowUser(USER_ID);
+        setIsFollowing(false);
+      } else {
+        await userServices.followUser(USER_ID);
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error("Follow error:", error);
+    }
+  }
+
+  useEffect(() => {
     if (activeTab == "posts") {
       fetchRecentPosts();
     }
@@ -73,8 +102,6 @@ function Profile() {
     upvoted: <Upvoted posts={posts} />,
     downvoted: <Downvoted />,
   };
-
-  const { theme } = useAuth();
 
   if (!user) {
     return <Loader />
@@ -109,7 +136,7 @@ function Profile() {
               className={
                 isFollowing ? styles.unfollowBtn : styles.followBtn
               }
-              onClick={() => setIsFollowing(!isFollowing)}
+              onClick={handleFollowClick}
             >
               {isFollowing ? "Unfollow" : "Follow"}
             </button>
