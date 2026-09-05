@@ -23,8 +23,9 @@ export const searchPosts = async (updatePosts, keyword, user) => {
 };
 
 
-export async function getPosts(offSet) {
-    const response = await api.get("posts/getposts/" + offSet);
+export async function getPosts(offSet, user = null) {
+    const endpoint = user ? "posts/getposts/logged/" : "posts/getposts/";
+    const response = await api.get(endpoint + offSet);
     return response.data.map((serverData) =>
     ({
         id: serverData.id,
